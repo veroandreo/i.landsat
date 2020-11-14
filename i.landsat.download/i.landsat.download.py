@@ -157,11 +157,14 @@ def main():
         from landsatxplore.earthexplorer import EarthExplorer
 
         ee = EarthExplorer(user, password)
-
-        ee.download(
-            scene_id=options['id'],
-            output_dir=options['output']
-            )
+        
+        ids = options['id'].split(',')
+        
+        for i in ids:
+            ee.download(
+                scene_id=i,
+                output_dir=options['output']
+                )
         
         ee.logout()
         

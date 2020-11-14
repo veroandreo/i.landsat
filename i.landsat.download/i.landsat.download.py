@@ -83,7 +83,6 @@ import os
 import sys
 import grass.script as gs
 import landsatxplore.api
-# from landsatxplore.earthexplorer import EarthExplorer
 
 # bbox - get region in ll
 def get_bb(vector = None):
@@ -128,32 +127,44 @@ def main():
 
     if user is None or password is None:
         gs.fatal(_("No user or password given"))
+    
+    if flags['l']:
+        
+        bb = get_bb(options['map'])
+        
+        # List scenes available
+        scenes = landsat_api.search(
+            dataset = options['dataset'],
+            bbox = bb,
+            start_date = options['start'],
+            end_date = options['end'],
+            max_cloud_cover = options['clouds']
+            )
+        
+        # Output number of scenes found
+        print('{} scenes found.'.format(len(scenes)))
+        
+        # Output list of scenes found
+        print('ID', 'DisplayID', 'Date', 'Clouds')
+        for scene in scenes:
+            print(scene['entityId'], scene['displayId'], scene['acquisitionDate'], scene['cloudCover'])
+        
+        landsat_api.logout()
+        
+    else:
+    
+        # Download by ID
+        from landsatxplore.earthexplorer import EarthExplorer
 
-    bb = get_bb(options['map'])
+        ee = EarthExplorer(user, password)
 
-    scenes = landsat_api.search(
-        dataset = options['dataset'],
-        bbox = bb,
-        start_date = options['start'],
-        end_date = options['end'],
-        max_cloud_cover = options['clouds']
-    )
-
-    print('{} scenes found.'.format(len(scenes)))
-
-    # Output list of scenes found
-    print('ID', 'DisplayID', 'Date', 'Clouds')
-    for scene in scenes:
-        print(scene['entityId'], scene['displayId'], scene['acquisitionDate'], scene['cloudCover'])
-
-    # # download
-    # ee = EarthExplorer(user, password)
-    # ee.download(
-    #     scene_id=options['id'],
-    #     output_dir=options['output']
-    #     )
-
-    landsat_api.logout()
+        ee.download(
+            scene_id=options['id'],
+            output_dir=options['output']
+            )
+        
+        ee.logout()
+        
 
 if __name__ == '__main__':
     options, flags = gs.parser()

@@ -97,18 +97,12 @@ def get_bb(vector = None):
         gs.fatal('Unable to get bounding box: unprojected location not supported')
     if kv['+proj'] != 'longlat':
         info = gs.parse_command('g.region', flags='uplg', **args)
-        return '({xmin}, {ymin}, {xmax}, {ymax})'.format(
-            xmin=info['nw_long'], ymin=info['sw_lat'], xmax=info['ne_long'], ymax=info['nw_lat']
-        )
+        return (info['nw_long'], info['sw_lat'], info['ne_long'], info['nw_lat'])
     else:
         info = gs.parse_command('g.region', flags='upg', **args)
-        return '({xmin}, {ymin}, {xmax}, {ymax})'.format(
-            xmin=info['w'], ymin=info['s'], xmax=info['e'], ymax=info['n']
-        )
+        return (info['w'], info['s'], info['e'], info['n'])
 
 def main():
-
-    bb = get_bb(options['map'])
 
     user = password = None
 
@@ -117,8 +111,6 @@ def main():
         import getpass
         user = raw_input(_('Insert username: '))
         password = getpass.getpass(_('Insert password: '))
-
-        landsat_api = landsatxplore.api.API(user, password)
 
     else:
         try:
@@ -129,17 +121,19 @@ def main():
                 user = lines[0].strip()
                 password = lines[1].strip()
 
-                landsat_api = landsatxplore.api.API(user, password)
-
         except IOError as e:
             gs.fatal(_("Unable to open settings file: {}").format(e))
+
+    landsat_api = landsatxplore.api.API(user, password)
 
     if user is None or password is None:
         gs.fatal(_("No user or password given"))
 
+    bb = get_bb(options['map'])
+
     scenes = landsat_api.search(
         dataset = options['dataset'],
-        bbox = print(bb),
+        bbox = bb,
         start_date = options['start'],
         end_date = options['end'],
         max_cloud_cover = options['clouds']

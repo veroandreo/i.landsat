@@ -70,7 +70,7 @@
 #% key: id
 #% type: string
 #% multiple: yes
-#% description: List of IDs to download
+#% description: List of scenes IDs to download
 #% guisection: Filter
 #%end
 #%flag
@@ -131,7 +131,7 @@ def main():
     if flags['l']:
         
         bb = get_bb(options['map'])
-        
+        print(bb)
         # List scenes available
         scenes = landsat_api.search(
             dataset = options['dataset'],

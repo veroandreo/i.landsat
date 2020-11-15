@@ -4,7 +4,7 @@
 #
 # MODULE:      i.landsat.download
 # AUTHOR(S):   Veronica Andreo
-# PURPOSE:     Downloads Landsat data TM, ETM and OLI from EarthExplorer
+# PURPOSE:     Downloads Landsat TM, ETM and OLI data from EarthExplorer
 #              using landsatxplore Python library.
 # COPYRIGHT:   (C) 2020-2021 by Veronica Andreo, and the GRASS development team
 #
@@ -15,7 +15,7 @@
 #############################################################################
 
 #%module
-#% description: Downloads Landsat data TM, ETM and OLI from EarthExplorer using landsatxplore Python library
+#% description: Downloads Landsat TM, ETM and OLI data from EarthExplorer using landsatxplore Python library
 #% keyword: imagery
 #% keyword: satellite
 #% keyword: Landsat
@@ -41,7 +41,7 @@
 #%option
 #% key: clouds
 #% type: integer
-#% description: Maximum cloud cover percentage for Sentinel scene
+#% description: Maximum cloud cover percentage for Landsat scene
 #% required: no
 #% guisection: Filter
 #%end

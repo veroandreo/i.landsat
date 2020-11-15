@@ -1,22 +1,76 @@
 <h2>DESCRIPTION</h2>
 
-A long description with details about the method, implementation, usage or whatever is appropriate.
+i.landsat.download allows to search and download Landsat TM, ETM and OLI data
+from USGS <a href="https://earthexplorer.usgs.gov/">EarthExplorer</a> through
+the <a href="https://github.com/yannforget/landsatxplore">landsatxplore</a>
+Python library. Datasets currently supported include: Landsat 5 TM (LANDSAT_TM_C1),
+Landsat 7 ETM (LANDSAT_ETM_C1) and Landsat 8 OLI (LANDSAT_8_C1).
+
+<p>
+To connect to EarthExplorer both a <em>user</em> name and <em>password</em>
+are required. See the <a href="https://ers.cr.usgs.gov/register">register</a>
+page for signing up.
+
+<p>
+<em>i.landsat.download</em> reads the user credentials either from the
+terminal or from the <b>settings</b> file. This file must contain two
+lines:
+
+<div class="code"><pre>
+myusername
+mypassword
+</pre></div>
+
+<p>
+User credentials can be also defined interactively when <b>settings=-</b>
+is given. Note that interactive prompt does not work in the graphical
+user interface.
+
+<div class="code"><pre>
+Insert username: myusername
+Insert password:
+</pre></div>
+
+<p>
+By default, only products which footprint intersects current computation
+region extent (area of interest, AOI) are filtered. The AOI can be optionally
+defined by a vector <b>map</b>. In this case, the vector extent will
+be used as AOI.
+
+<p>
+Currently, to actually download a scene, one or more IDs must be provided,
+along with the settings file and an output directory.
 
 <h2>EXAMPLES</h2>
 
-Examples of how the module can be used alone or in combination with other modules.
-Possibly using the GRASS North Carolina State Plane Metric sample Location.
-At least one screenshot (PNG format) of the result should provided to show the user what to expect.
+Search available scenes:
 
-<h2>REFERENCES</h2>
+<div class="code"><pre>
+i.landsat.download -l settings=credentials.txt \
+    dataset=LANDSAT_8_C1 clouds=15 \
+    start='2018-08-24' end='2018-12-21'
+<pre></div>
 
-Reference or references to paper related to the module or references which algorithm the module is based on.
+Download selected scenes by ID:
+
+<div class="code"><pre>
+i.landsat.download settings=credentials.txt \
+    id=LC81391162018338LGN00,LC81301172018339LGN00 \
+    output=/tmp
+<pre></div>
+
+<h2>REQUIREMENTS</h2>
+
+<ul>
+    <li><a href="https://github.com/yannforget/landsatxplore">landsatxplore library</a></li>
+</ul>
 
 <h2>SEE ALSO</h2>
 
-List of related or similar GRASS GIS modules or modules used together with this module as well as any related websites, or
-related pages at the GRASS GIS User wiki.
+<a href="i.landsat.html">Overview of i.landsat tools</a>,
+<a href="i.landsat.import.html">i.landsat.import</a>,
+<a href="https://grass.osgeo.org/grass-stable/manuals/i.lansat.toar">i.landsat.toar</a>
 
 <h2>AUTHORS</h2>
 
-List of author(s), their organizations and funding sources.
+Veronica Andreo

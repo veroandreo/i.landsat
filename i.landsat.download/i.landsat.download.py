@@ -96,10 +96,10 @@ def get_bb(vector = None):
         gs.fatal('Unable to get bounding box: unprojected location not supported')
     if kv['+proj'] != 'longlat':
         info = gs.parse_command('g.region', flags='uplg', **args)
-        return (info['nw_long'], info['sw_lat'], info['ne_long'], info['nw_lat'])
+        return (info['sw_lat'], info['nw_long'], info['nw_lat'], info['ne_long'])
     else:
         info = gs.parse_command('g.region', flags='upg', **args)
-        return (info['w'], info['s'], info['e'], info['n'])
+        return (info['s'], info['w'], info['n'], info['e'])
 
 def main():
 
@@ -131,7 +131,7 @@ def main():
     if flags['l']:
         
         bb = get_bb(options['map'])
-        print(bb)
+
         # List scenes available
         scenes = landsat_api.search(
             dataset = options['dataset'],

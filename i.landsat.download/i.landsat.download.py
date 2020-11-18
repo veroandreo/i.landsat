@@ -73,14 +73,34 @@
 #% description: List of scenes IDs to download
 #% guisection: Filter
 #%end
+#%option
+#% key: sort
+#% description: Sort by values in given order
+#% multiple: yes
+#% options: acquisitionDate,cloudCover
+#% answer: cloudCover,acquisitionDate
+#% guisection: Sort
+#%end
+#%option
+#% key: order
+#% description: Sort order (see sort parameter)
+#% options: asc,desc
+#% answer: asc
+#% guisection: Sort
+#%end
 #%flag
 #% key: l
 #% description: List filtered products and exit
 #% guisection: Print
 #%end
+#%rules
+#% required: settings
+#% excludes: -l, id
+#%end
 
 import os
 import sys
+from datetime import *
 import grass.script as gs
 
 # bbox - get region in ll
@@ -125,41 +145,77 @@ def main():
 
     if user is None or password is None:
         gs.fatal(_("No user or password given"))
-    
+
+    start_date = ''
+    delta_days = timedelta(60)
+    if not options['start']:
+        start_date = date.today() - delta_days
+        start_date = start_date.strftime('%Y-%m-%d')
+
+    end_date = ''
+    if not options['end']:
+        end_date = date.today().strftime('%Y-%m-%d')
+
+    if not options['output']:
+        outdir = '/tmp'
+
     if flags['l']:
         
         bb = get_bb(options['map'])
 
-        # List scenes available
+        # List available scenes
         scenes = landsat_api.search(
             dataset = options['dataset'],
             bbox = bb,
-            start_date = options['start'],
-            end_date = options['end'],
+            start_date = start_date,
+            end_date = end_date,
             max_cloud_cover = options['clouds']
             )
         
         # Output number of scenes found
-        print('{} scenes found.'.format(len(scenes)))
-        
+        gs.message(_('{} scenes found.'.format(len(scenes))))
+
+        sort_vars = options['sort'].split(',')
+
+        reverse = ''
+        if options['order'] == 'desc':
+            reverse = True
+
+        # Sort scenes
+        sorted_scenes = sorted(scenes, key=lambda i: (i[sort_vars[0]],i[sort_vars[1]]),
+                               reverse = reverse)
+
         # Output list of scenes found
         print('ID', 'DisplayID', 'Date', 'Clouds')
-        for scene in scenes:
+        for scene in sorted_scenes:
             print(scene['entityId'], scene['displayId'], scene['acquisitionDate'], scene['cloudCover'])
         
         landsat_api.logout()
-        
-    else:
-    
-        # Download by ID
+
+        gs.message(_("To download all scenes found, re-run the previous "
+                     "command without -l flag. Note that if no output "
+                     "option is provided, files will be downloaded in /tmp"))
+
+    elif not flags['l'] and not options['id']:
+
         ee = EarthExplorer(user, password)
-        
+        for scene in sorted_scenes:
+            ee.download(
+                scene_id=scene['entityId'],
+                output_dir=outdir
+            )
+
+        ee.logout()
+
+    else:
+
+        # Download by ID
         ids = options['id'].split(',')
         
         for i in ids:
             ee.download(
                 scene_id=i,
-                output_dir=options['output']
+                output_dir=outdir
                 )
         
         ee.logout()

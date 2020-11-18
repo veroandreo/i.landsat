@@ -90,8 +90,7 @@ def get_bb(vector = None):
     if vector:
         args['vector'] = vector
     # are we in LatLong location?
-    s = gs.read_command("g.proj", flags='j')
-    kv = gs.parse_key_val(s)
+    kv = gs.parse_command("g.proj", flags='j')
     if '+proj' not in kv:
         gs.fatal('Unable to get bounding box: unprojected location not supported')
     if kv['+proj'] != 'longlat':

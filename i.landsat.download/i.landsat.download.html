@@ -39,9 +39,17 @@ defined by a vector <b>map</b>. In this case, the vector extent will
 be used as AOI.
 
 <p>
-Currently, to actually download a scene, one or more IDs must be provided
-through <b>id</b>, along with the <b>settings</b> file and an <b>output</b>
-directory.
+To only list available scenes, <b>l</b> flag must be set. If no <b>start</b>
+or <b>end</b> dates are provided, the module will search scenes from the
+past 60 days.
+
+<p>
+To download all scenes found within the time frame provided, the user must
+remove the <b>l</b> flag and provide an <b>output</b> directory. Otherwise,
+files will be downloaded into <em>/tmp</em> directory.
+To download only selected scenes, one or more IDs must be provided
+through the <b>id</b> option, along with the <b>settings</b> file and an
+<b>output</b> directory.
 
 <h2>EXAMPLES</h2>
 
@@ -49,6 +57,14 @@ Search available scenes:
 
 <div class="code"><pre>
 i.landsat.download -l settings=credentials.txt \
+    dataset=LANDSAT_8_C1 clouds=15 \
+    start='2018-08-24' end='2018-12-21'
+<pre></div>
+
+Download all available scenes:
+
+<div class="code"><pre>
+i.landsat.download settings=credentials.txt \
     dataset=LANDSAT_8_C1 clouds=15 \
     start='2018-08-24' end='2018-12-21'
 <pre></div>

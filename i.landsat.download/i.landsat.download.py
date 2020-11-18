@@ -159,7 +159,22 @@ def main():
     if not options['output']:
         outdir = '/tmp'
 
-    if flags['l']:
+    if options['id']:
+
+        # Download by ID
+        ids = options['id'].split(',')
+
+        ee = EarthExplorer(user, password)
+
+        for i in ids:
+            ee.download(
+                scene_id=i,
+                output_dir=outdir
+            )
+
+        ee.logout()
+
+    else:
         
         bb = get_bb(options['map'])
 
@@ -185,41 +200,30 @@ def main():
         sorted_scenes = sorted(scenes, key=lambda i: (i[sort_vars[0]],i[sort_vars[1]]),
                                reverse = reverse)
 
-        # Output list of scenes found
-        print('ID', 'DisplayID', 'Date', 'Clouds')
-        for scene in sorted_scenes:
-            print(scene['entityId'], scene['displayId'], scene['acquisitionDate'], scene['cloudCover'])
-        
-        landsat_api.logout()
+        if flags['l']:
 
-        gs.message(_("To download all scenes found, re-run the previous "
+            # Output sorted list of scenes found
+            print('ID', 'DisplayID', 'Date', 'Clouds')
+            for scene in sorted_scenes:
+                print(scene['entityId'], scene['displayId'], scene['acquisitionDate'], scene['cloudCover'])
+
+            gs.message(_("To download all scenes found, re-run the previous "
                      "command without -l flag. Note that if no output "
                      "option is provided, files will be downloaded in /tmp"))
 
-    elif not flags['l'] and not options['id']:
+            landsat_api.logout()
 
-        ee = EarthExplorer(user, password)
-        for scene in sorted_scenes:
-            ee.download(
-                scene_id=scene['entityId'],
-                output_dir=outdir
-            )
+        else:
 
-        ee.logout()
+            ee = EarthExplorer(user, password)
 
-    else:
-
-        # Download by ID
-        ids = options['id'].split(',')
-        
-        for i in ids:
-            ee.download(
-                scene_id=i,
-                output_dir=outdir
+            for scene in sorted_scenes:
+                ee.download(
+                    scene_id=scene['entityId'],
+                    output_dir=outdir
                 )
-        
-        ee.logout()
-        
+
+            ee.logout()
 
 if __name__ == '__main__':
     options, flags = gs.parser()

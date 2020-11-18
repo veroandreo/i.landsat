@@ -82,7 +82,6 @@
 import os
 import sys
 import grass.script as gs
-import landsatxplore.api
 
 # bbox - get region in ll
 def get_bb(vector = None):
@@ -153,8 +152,6 @@ def main():
     else:
     
         # Download by ID
-        from landsatxplore.earthexplorer import EarthExplorer
-
         ee = EarthExplorer(user, password)
         
         ids = options['id'].split(',')
@@ -170,4 +167,13 @@ def main():
 
 if __name__ == '__main__':
     options, flags = gs.parser()
+
+    # lazy import
+    try:
+        import landsatxplore.api
+        from landsatxplore.earthexplorer import EarthExplorer
+    except ImportError:
+        gs.fatal(_("Cannot import landsatxplore."
+                   " Please install the library first."))
+
     main()

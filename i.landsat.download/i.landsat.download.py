@@ -192,7 +192,7 @@ def main():
 
         sort_vars = options['sort'].split(',')
 
-        reverse = ''
+        reverse = False
         if options['order'] == 'desc':
             reverse = True
 

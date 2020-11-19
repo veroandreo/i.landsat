@@ -167,10 +167,17 @@ def main():
         ee = EarthExplorer(user, password)
 
         for i in ids:
-            ee.download(
-                scene_id=i,
-                output_dir=outdir
-            )
+
+            try:
+
+                ee.download(
+                    scene_id=i,
+                    output_dir=outdir
+                    )
+
+            except OSError as e:
+
+                gs.fatal(_("Scene ID or output dir not valid or not found"))
 
         ee.logout()
 
@@ -200,6 +207,8 @@ def main():
         sorted_scenes = sorted(scenes, key=lambda i: (i[sort_vars[0]],i[sort_vars[1]]),
                                reverse = reverse)
 
+        landsat_api.logout()
+
         if flags['l']:
 
             # Output sorted list of scenes found
@@ -211,13 +220,14 @@ def main():
                      "command without -l flag. Note that if no output "
                      "option is provided, files will be downloaded in /tmp"))
 
-            landsat_api.logout()
-
         else:
 
             ee = EarthExplorer(user, password)
 
+            gs.message(_("Downloading {} scenes. This might take a while.").format(len(sorted_scenes)))
+
             for scene in sorted_scenes:
+
                 ee.download(
                     scene_id=scene['entityId'],
                     output_dir=outdir

@@ -156,12 +156,19 @@ def main():
     if not options['end']:
         end_date = date.today().strftime('%Y-%m-%d')
 
+    outdir = options['output']
+    if os.path.isdir(outdir):
+        if not os.access(outdir, os.W_OK):
+            gs.fatal(_("Output directory <{}> is not writable").format(outdir))
+    else:
+        gs.fatal(_("Output directory <{}> is not a directory").format(outdir))
+
     if not options['output']:
         outdir = '/tmp'
 
+    # Download by ID
     if options['id']:
 
-        # Download by ID
         ids = options['id'].split(',')
 
         ee = EarthExplorer(user, password)
@@ -175,9 +182,9 @@ def main():
                     output_dir=outdir
                     )
 
-            except OSError as e:
+            except OSError:
 
-                gs.fatal(_("Scene ID or output dir not valid or not found"))
+                gs.fatal(_("Scene ID <{}> not valid or not found").format(i))
 
         ee.logout()
 
@@ -242,7 +249,9 @@ if __name__ == '__main__':
     try:
         import landsatxplore.api
         from landsatxplore.earthexplorer import EarthExplorer
+
     except ImportError:
+
         gs.fatal(_("Cannot import landsatxplore."
                    " Please install the library first."))
 

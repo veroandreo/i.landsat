@@ -231,9 +231,9 @@ def main():
 
             ee = EarthExplorer(user, password)
 
-            gs.message(_("Downloading {} scenes. This might take a while.").format(len(sorted_scenes)))
-
             for scene in sorted_scenes:
+
+                gs.message(_("Downloading scene <{}> ...").format(scene['entityId']))
 
                 ee.download(
                     scene_id=scene['entityId'],

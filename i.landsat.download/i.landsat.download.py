@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#
+#-*- coding: utf-8 -*-
 ############################################################################
 #
 # MODULE:      i.landsat.download
@@ -74,6 +74,14 @@
 #% guisection: Filter
 #%end
 #%option
+#% key: tier
+#% type: string
+#% multiple: yes
+#% description: Tiers
+#% options: RT, T1, T2
+#% guisection: Filter
+#%end
+#%option
 #% key: sort
 #% description: Sort by values in given order
 #% multiple: yes
@@ -94,8 +102,7 @@
 #% guisection: Print
 #%end
 #%rules
-#% required: settings
-#% excludes: -l, id
+#% exclusive: -l, id, output
 #%end
 
 import os
@@ -156,14 +163,15 @@ def main():
     if not options['end']:
         end_date = date.today().strftime('%Y-%m-%d')
 
-    outdir = options['output']
-    if os.path.isdir(outdir):
-        if not os.access(outdir, os.W_OK):
-            gs.fatal(_("Output directory <{}> is not writable").format(outdir))
+    outdir = ''
+    if options['output']:
+        outdir = options['output']
+        if os.path.isdir(outdir):
+            if not os.access(outdir, os.W_OK):
+                gs.fatal(_("Output directory <{}> is not writable").format(outdir))
+        else:
+            gs.fatal(_("Output directory <{}> is not a directory").format(outdir))
     else:
-        gs.fatal(_("Output directory <{}> is not a directory").format(outdir))
-
-    if not options['output']:
         outdir = '/tmp'
 
     # Download by ID
@@ -200,7 +208,10 @@ def main():
             end_date = end_date,
             max_cloud_cover = options['clouds']
             )
-        
+
+        if options['tier']:
+            scenes = list(filter(lambda s: options['tier'] in s['displayId'], scenes))
+
         # Output number of scenes found
         gs.message(_('{} scenes found.'.format(len(scenes))))
 
@@ -219,7 +230,7 @@ def main():
         if flags['l']:
 
             # Output sorted list of scenes found
-            print('ID', 'DisplayID', 'Date', 'Clouds')
+            # print('ID', 'DisplayID', 'Date', 'Clouds')
             for scene in sorted_scenes:
                 print(scene['entityId'], scene['displayId'], scene['acquisitionDate'], scene['cloudCover'])
 

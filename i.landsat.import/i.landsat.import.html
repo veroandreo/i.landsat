@@ -8,8 +8,8 @@ module.
 By default <em>i.landsat.import</em> imports all Landsat bands within the scene
 files found in the <b>input</b> directory. The number of scene files can be optionally
 reduced with the <b>pattern_file</b> option. In this option, a regular expression
-for filtering the file names can be given, e.g. "..." for
-importing only ...
+for filtering the file names can be given, e.g. "229083" for
+importing only scenes from path 229 and row 083.
 
 <p>
 By default <em>i.landsat.import</em> imports the full scene. Optionally, the
@@ -17,14 +17,14 @@ import can be reduced to the computational region extent with
 <b>extent=region</b>.
 
 <p>
-Note that in the case that spatial reference system of input data differs
+Note that in the case the spatial reference system of input data differs
 from that of the GRASS GIS target location, the input data will be reprojected
 internally by means of <em><a href="https://grass.osgeo.org/grass-stable/manuals/r.import.html">r.import</a></em>.
 To speed up this process, a higher than default value can be specified for
 the <b>memory</b> option.
 
 <p>
-If the user wants to ignore an insignificant mismatch of the spatial reference
+If the user wants to ignore an insignificant mismatch in the spatial reference
 system, the projection check can be suppressed with the <b>-o</b> flag and data
 will be imported directly.
 
@@ -87,8 +87,8 @@ spatial resolution:
 
 <p>
 Note that while the original resolution of band 6 in Landsat 5 TM and
-Landsat 7 ETM is 120 and 60m respectively, they are provided with
-a resampled resolution of 30m.
+Landsat 7 ETM is 120 and 60 m respectively, they are provided with
+a resampled resolution of 30 m.
 For further details about bands wavelength and scene size, visit the
 <a href="https://www.usgs.gov/faqs/what-are-band-designations-landsat-satellites?qt-news_science_products=0#qt-news_science_products" target="_blank">band designations</a>
 page at USGS website.
@@ -119,13 +119,6 @@ Limit import to all bands with 30m resolution:
 
 <div class="code"><pre>
 i.landsat.import input=data pattern='B0(2|3|4|8)'
-</pre></div>
-
-<p>
-Limit import to only selected bands with 10m and 20m resolution (excluding AOT, WVP, ... bands):
-
-<div class="code"><pre>
-i.landsat.import input=data pattern='B(02_1|03_1|04_1|08_1|11_2)0m'
 </pre></div>
 
 <p>

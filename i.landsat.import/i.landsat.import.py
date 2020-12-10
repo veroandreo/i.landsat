@@ -32,6 +32,16 @@
 #% required: no
 #%end
 #%option
+#% key: pattern
+#% description: Band name pattern to import
+#% guisection: Filter
+#%end
+#%option
+#% key: pattern_file
+#% description: File name pattern to import
+#% guisection: Filter
+#%end
+#%option
 #% key: extent
 #% type: string
 #% required: no
@@ -71,6 +81,11 @@
 #% description: Print raster data to be imported and exit
 #% guisection: Print
 #%end
+#%rules
+#% exclusive: -l,-r,-p
+#% exclusive: -o,-r
+#% exclusive: extent,-l
+#%end
 
 import os
 import sys
@@ -91,7 +106,12 @@ def _untar(inputdir, untardir):
     if not os.path.exists(untardir):
         gs.fatal(_('Directory <{}> does not exist').format(untardir))
 
-    scenes_to_untar = glob.glob(os.path.join(inputdir, '*.tar.gz'))
+    if options['pattern_file']:
+        filter_f = '*' + options['pattern_file'] + '*.tar.gz'
+    else:
+        filter_f = '*.tar.gz'
+
+    scenes_to_untar = glob.glob(os.path.join(inputdir, filter_f))
     for scene in scenes_to_untar:
         shutil.unpack_archive(scene, untardir)
 
@@ -173,40 +193,54 @@ def main():
 
     files = _untar(inputdir, untardir)
 
-    if len(files) < 1:
-        gs.fatal(_('Nothing found to import. Please check the input option.'))
+    if options['pattern']:
+        filter_p = r'.*{}.*.TIF$'.format(options['pattern'])
+    else:
+        filter_p = r'.*_B.*.TIF$'
+
+    pattern = re.compile(filter_p)
+
+    files_to_import = []
+    for f in files:
+        if pattern.match(f):
+            files_to_import.append(f)
+
+    if len(files_to_import) < 1:
+        gs.fatal(_('Nothing found to import. Please check the input and pattern options.'))
 
     if flags['p']:
-        print_products(files)
-
-    args = {}
-    module = ''
-    if flags['l']:
-        module = 'r.external'
-        args['flags'] = 'o' if flags['o'] else None
+        print_products(files_to_import)
     else:
-        args['memory'] = options['memory']
-        if flags['r']:
-            module = 'r.import'
-            args['resample'] = 'bilinear'
-            args['resolution'] = 'value'
-            args['extent'] = options['extent']
-        else:
-            module = 'r.in.gdal'
+        # which module to use for the import?
+        args = {}
+        module = ''
+        if flags['l']:
+            module = 'r.external'
             args['flags'] = 'o' if flags['o'] else None
-            if options['extent'] == 'region':
-                if args['flags']:
-                    args['flags'] += 'r'
-                else:
-                    args['flags'] = 'r'
+        else:
+            args['memory'] = options['memory']
+            if flags['r']:
+                module = 'r.import'
+                args['resample'] = 'bilinear'
+                args['resolution'] = 'value'
+                args['extent'] = options['extent']
+            else:
+                module = 'r.in.gdal'
+                args['flags'] = 'o' if flags['o'] else None
+                if options['extent'] == 'region':
+                    if args['flags']:
+                        args['flags'] += 'r'
+                    else:
+                        args['flags'] = 'r'
+        for f in files_to_import:
+            if not flags['o'] and (flags['l'] or (not flags['l'] and not flags['r'])):
+                if not _check_projection(f):
+                    gs.fatal(_('Projection of dataset does not appear to match current location. '
+                               'Force reprojection using -r flag.'))
+            import_raster(f, module, args)
 
-    for f in files:
-        if not flags['o'] and (flags['l'] or (not flags['l'] and not flags['r'])):
-            if not _check_projection(f):
-                gs.fatal(_('Projection of dataset does not appear to match current location. '
-                           'Force reprojection using -r flag.'))
-
-        import_raster(f, module, args)
+            # remove tif after import
+            os.remove(f)
 
 if __name__ == '__main__':
     options, flags = gs.parser()

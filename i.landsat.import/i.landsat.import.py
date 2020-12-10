@@ -239,8 +239,9 @@ def main():
                                'Force reprojection using -r flag.'))
             import_raster(f, module, args)
 
-            # remove tif after import
-            os.remove(f)
+    # remove all tif after import
+    for f in files:
+        os.remove(f)
 
 if __name__ == '__main__':
     options, flags = gs.parser()

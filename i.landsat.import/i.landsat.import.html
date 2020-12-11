@@ -8,7 +8,7 @@ module.
 By default <em>i.landsat.import</em> imports all Landsat bands within the scene
 files found in the <b>input</b> directory. The number of scene files can be optionally
 reduced with the <b>pattern_file</b> option. In this option, a regular expression
-for filtering the file names can be given, e.g. "229083" for
+for filtering the file names can be given, e.g. '229083' for
 importing only scenes from path 229 and row 083.
 
 <p>
@@ -17,7 +17,7 @@ import can be reduced to the computational region extent with
 <b>extent=region</b>.
 
 <p>
-Note that in the case the spatial reference system of input data differs
+Note that in case that the spatial reference system of the input data differs
 from that of the GRASS GIS target location, the input data will be reprojected
 internally by means of <em><a href="https://grass.osgeo.org/grass-stable/manuals/r.import.html">r.import</a></em>.
 To speed up this process, a higher than default value can be specified for
@@ -33,7 +33,7 @@ Alternatively, input data can be linked by means of
 <em><a href="https://grass.osgeo.org/grass-stable/manuals/r.external.html">r.external</a></em>
 using <b>-l</b> flag. Note that linking data requires that Landsat input data
 and GRASS location have the same spatial reference system (e.g., the same UTM zone).
-Take into account that USGS provides all Landsat products in UTM north
+Take into account that USGS provides all Landsat products in UTM north zones
 whether they belong to North or South Hemisphere.
 
 <p>
@@ -95,10 +95,10 @@ page at USGS website.
 
 <h2>EXAMPLES</h2>
 
-<h3>List Landsat bands</h3>
+<h3>List Landsat bands to import</h3>
 
-At first, print list of raster files to be imported by <b>-p</b>. For
-each file also projection match with current location is printed
+At first, print the list of raster files to be imported by <b>-p</b>.
+For each file also projection match with current location is printed
 including detected input data EPSG code:
 
 <div class="code"><pre>
@@ -108,28 +108,21 @@ i.landsat.import -p input=data
 
 <h3>Import Landsat data</h3>
 
-Limit import to only to 4th and 8th bands:
+Limit import to only 4th and 5th bands:
 
 <div class="code"><pre>
-i.landsat.import input=data pattern='B0(4|8)'
+i.landsat.import input=data pattern='B(4|5)'
 </pre></div>
 
 <p>
 Limit import to all bands with 30m resolution:
 
 <div class="code"><pre>
-i.landsat.import input=data pattern='B0(2|3|4|8)'
+i.landsat.import input=data pattern='B(1|2|3|4|5|6|7|9)'
 </pre></div>
 
 <p>
-Limit import to all bands with 10m and 20m resolution (excluding AOT, WVP, ... bands):
-
-<div class="code"><pre>
-i.landsat.import -j input=data pattern='_B((0[2348]_1)|(0[567]|8A|11|12)_2)0m'
-</pre></div>
-
-<p>
-Link data:
+Link Landsat data:
 
 <div class="code"><pre>
 i.landsat.import -l input=data
@@ -139,16 +132,15 @@ i.landsat.import -l input=data
 Link data from specific path and row while ignoring projection check
 
 <div class="code"><pre>
-i.landsat.import -l -o input=data pattern_file="..."
+i.landsat.import -l -o input=data pattern_file='229083'
 </pre></div>
 
 <p>
-Limit import to only bands 3 and 4 from tier 1 for path and row xx in 2019
+Limit import to bands 4 and 5 for path 229 and row 083 in 2019
 
 <div class="code"><pre>
-i.landsat.import input=data pattern_file="..." pattern='B(3|4)'
+i.landsat.import input=data pattern_file='229083_2019' pattern='B(4|5)'
 </pre></div>
-
 
 <h2>SEE ALSO</h2>
 

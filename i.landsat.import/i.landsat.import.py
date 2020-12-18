@@ -163,7 +163,12 @@ def import_raster(filename, module, args):
     mapname = _map_name(filename)
     gs.message(_('Processing <{}>...').format(mapname))
     if module == 'r.import':
-        args['resolution_value'] = _raster_resolution(filename)
+        kv = gs.parse_command("g.proj", flags='j')
+        if kv['+proj'] == 'longlat':
+            args['resolution'] = 'estimated'
+        else:
+            args['resolution'] = 'value'
+            args['resolution_value'] = _raster_resolution(filename)
     try:
         gs.run_command(module, input=filename, output=mapname, **args)
         if gs.raster_info(mapname)['datatype'] in ('FCELL', 'DCELL'):
@@ -222,7 +227,6 @@ def main():
             if flags['r']:
                 module = 'r.import'
                 args['resample'] = 'bilinear'
-                args['resolution'] = 'value'
                 args['extent'] = options['extent']
             else:
                 module = 'r.in.gdal'
@@ -235,7 +239,7 @@ def main():
         for f in files_to_import:
             if not flags['o'] and (flags['l'] or (not flags['l'] and not flags['r'])):
                 if not _check_projection(f):
-                    gs.fatal(_('Projection of dataset does not appear to match current location. '
+                    gs.fatal(_('Projection of dataset does not match current location. '
                                'Force reprojection using -r flag.'))
             import_raster(f, module, args)
 

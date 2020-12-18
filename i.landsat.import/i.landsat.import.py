@@ -15,7 +15,7 @@
 #############################################################################
 
 #%module
-#% description: Imports Landsat satellite data downloaded from EarthExplorer using i.landsat.download.
+#% description: Imports Landsat satellite data downloaded using i.landsat.download.
 #% keyword: imagery
 #% keyword: satellite
 #% keyword: Landsat
@@ -143,9 +143,9 @@ def _raster_resolution(filename):
 
 def _raster_epsg(filename):
     try:
-       from osgeo import gdal, osr
+        from osgeo import gdal, osr
     except ImportError as e:
-       gs.fatal(_("Flag -r requires GDAL library: {}").format(e))
+        gs.fatal(_("Flag -r requires GDAL library: {}").format(e))
     dsn = gdal.Open(filename)
 
     srs = osr.SpatialReference()

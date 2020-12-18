@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 ############################################################################
 #
 # MODULE:      i.landsat.download
@@ -15,7 +15,7 @@
 #############################################################################
 
 #%module
-#% description: Downloads Landsat TM, ETM and OLI data from EarthExplorer using landsatxplore Python library
+#% description: Downloads Landsat TM, ETM and OLI data from EarthExplorer using landsatxplore library
 #% keyword: imagery
 #% keyword: satellite
 #% keyword: Landsat
@@ -106,40 +106,43 @@
 #%end
 
 import os
-import sys
 from datetime import *
 import grass.script as gs
 
 # bbox - get region in ll
-def get_bb(vector = None):
+def get_bb(vector=None):
     args = {}
     if vector:
-        args['vector'] = vector
+        args["vector"] = vector
     # are we in LatLong location?
-    kv = gs.parse_command("g.proj", flags='j')
-    if '+proj' not in kv:
-        gs.fatal('Unable to get bounding box: unprojected location not supported')
-    if kv['+proj'] != 'longlat':
-        info = gs.parse_command('g.region', flags='uplg', **args)
-        return (info['sw_lat'], info['nw_long'], info['nw_lat'], info['ne_long'])
+    kv = gs.parse_command("g.proj", flags="j")
+    if "+proj" not in kv:
+        gs.fatal("Unable to get bounding box: unprojected location not supported")
+    if kv["+proj"] != "longlat":
+        info = gs.parse_command("g.region", flags="uplg", **args)
+        return (info["sw_lat"], info["nw_long"], info["nw_lat"], info["ne_long"])
     else:
-        info = gs.parse_command('g.region', flags='upg', **args)
-        return (info['s'], info['w'], info['n'], info['e'])
+        info = gs.parse_command("g.region", flags="upg", **args)
+        return (info["s"], info["w"], info["n"], info["e"])
+
 
 def main():
 
     user = password = None
 
-    if options['settings'] == '-':
+    if options["settings"] == "-":
         # stdin
         import getpass
-        user = raw_input(_('Insert username: '))
-        password = getpass.getpass(_('Insert password: '))
+
+        user = raw_input(_("Insert username: "))
+        password = getpass.getpass(_("Insert password: "))
 
     else:
         try:
-            with open(options['settings'], 'r') as fd:
-                lines = list(filter(None, (line.rstrip() for line in fd))) # non-blank lines only
+            with open(options["settings"], "r") as fd:
+                lines = list(
+                    filter(None, (line.rstrip() for line in fd))
+                )  # non-blank lines only
                 if len(lines) < 2:
                     gs.fatal(_("Invalid settings file"))
                 user = lines[0].strip()
@@ -153,31 +156,31 @@ def main():
     if user is None or password is None:
         gs.fatal(_("No user or password given"))
 
-    start_date = ''
+    start_date = ""
     delta_days = timedelta(60)
-    if not options['start']:
+    if not options["start"]:
         start_date = date.today() - delta_days
-        start_date = start_date.strftime('%Y-%m-%d')
+        start_date = start_date.strftime("%Y-%m-%d")
 
-    end_date = ''
-    if not options['end']:
-        end_date = date.today().strftime('%Y-%m-%d')
+    end_date = ""
+    if not options["end"]:
+        end_date = date.today().strftime("%Y-%m-%d")
 
-    outdir = ''
-    if options['output']:
-        outdir = options['output']
+    outdir = ""
+    if options["output"]:
+        outdir = options["output"]
         if os.path.isdir(outdir):
             if not os.access(outdir, os.W_OK):
                 gs.fatal(_("Output directory <{}> is not writable").format(outdir))
         else:
             gs.fatal(_("Output directory <{}> is not a directory").format(outdir))
     else:
-        outdir = '/tmp'
+        outdir = "/tmp"
 
     # Download by ID
-    if options['id']:
+    if options["id"]:
 
-        ids = options['id'].split(',')
+        ids = options["id"].split(",")
 
         ee = EarthExplorer(user, password)
 
@@ -185,10 +188,7 @@ def main():
 
             try:
 
-                ee.download(
-                    scene_id=i,
-                    output_dir=outdir
-                    )
+                ee.download(scene_id=i, output_dir=outdir)
 
             except OSError:
 
@@ -197,46 +197,56 @@ def main():
         ee.logout()
 
     else:
-        
-        bb = get_bb(options['map'])
+
+        bb = get_bb(options["map"])
 
         # List available scenes
         scenes = landsat_api.search(
-            dataset = options['dataset'],
-            bbox = bb,
-            start_date = start_date,
-            end_date = end_date,
-            max_cloud_cover = options['clouds']
-            )
+            dataset=options["dataset"],
+            bbox=bb,
+            start_date=start_date,
+            end_date=end_date,
+            max_cloud_cover=options["clouds"],
+        )
 
-        if options['tier']:
-            scenes = list(filter(lambda s: options['tier'] in s['displayId'], scenes))
+        if options["tier"]:
+            scenes = list(filter(lambda s: options["tier"] in s["displayId"], scenes))
 
         # Output number of scenes found
-        gs.message(_('{} scenes found.'.format(len(scenes))))
+        gs.message(_("{} scenes found.".format(len(scenes))))
 
-        sort_vars = options['sort'].split(',')
+        sort_vars = options["sort"].split(",")
 
         reverse = False
-        if options['order'] == 'desc':
+        if options["order"] == "desc":
             reverse = True
 
         # Sort scenes
-        sorted_scenes = sorted(scenes, key=lambda i: (i[sort_vars[0]],i[sort_vars[1]]),
-                               reverse = reverse)
+        sorted_scenes = sorted(
+            scenes, key=lambda i: (i[sort_vars[0]], i[sort_vars[1]]), reverse=reverse
+        )
 
         landsat_api.logout()
 
-        if flags['l']:
+        if flags["l"]:
 
             # Output sorted list of scenes found
             # print('ID', 'DisplayID', 'Date', 'Clouds')
             for scene in sorted_scenes:
-                print(scene['entityId'], scene['displayId'], scene['acquisitionDate'], scene['cloudCover'])
+                print(
+                    scene["entityId"],
+                    scene["displayId"],
+                    scene["acquisitionDate"],
+                    scene["cloudCover"],
+                )
 
-            gs.message(_("To download all scenes found, re-run the previous "
-                     "command without -l flag. Note that if no output "
-                     "option is provided, files will be downloaded in /tmp"))
+            gs.message(
+                _(
+                    "To download all scenes found, re-run the previous "
+                    "command without -l flag. Note that if no output "
+                    "option is provided, files will be downloaded in /tmp"
+                )
+            )
 
         else:
 
@@ -244,16 +254,14 @@ def main():
 
             for scene in sorted_scenes:
 
-                gs.message(_("Downloading scene <{}> ...").format(scene['entityId']))
+                gs.message(_("Downloading scene <{}> ...").format(scene["entityId"]))
 
-                ee.download(
-                    scene_id=scene['entityId'],
-                    output_dir=outdir
-                )
+                ee.download(scene_id=scene["entityId"], output_dir=outdir)
 
             ee.logout()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     options, flags = gs.parser()
 
     # lazy import
@@ -263,7 +271,6 @@ if __name__ == '__main__':
 
     except ImportError:
 
-        gs.fatal(_("Cannot import landsatxplore."
-                   " Please install the library first."))
+        gs.fatal(_("Cannot import landsatxplore. Please install the library first."))
 
     main()

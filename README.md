@@ -1,9 +1,9 @@
 # Description
 
-This repo holds a toolset to search and download Landsat 5, 7 and 8 
+*i.landsat* is a toolset to search and download Landsat 5, 7 and 8 
 data from [EarthExplorer](https://earthexplorer.usgs.gov/) and further 
 import them into [GRASS GIS](https://grass.osgeo.org/). 
-Search and download are carried out through the
+Search and download are performed through the
 [landsatxplore](https://github.com/yannforget/landsatxplore) 
 python library.
 

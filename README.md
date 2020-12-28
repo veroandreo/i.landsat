@@ -1,3 +1,8 @@
+Attention :bangbang:
+
+Development of this toolset was moved to GRASS GIS addons repo: https://github.com/OSGeo/grass-addons/tree/master/grass7/imagery/i.landsat 
+
+
 # Description
 
 *i.landsat* is a toolset to search and download Landsat 5, 7 and 8 
